@@ -132,11 +132,11 @@ function TouchStartHandler(e){
 		canvas.addEventListener('touchmove', TouchMoveHandler1)
 		move1 = e.changedTouches[0].identifier
 		joystick1.on = true;
+		alert('joy1 true');
 		joystick1.baseX = e.changedTouches[0].clientX;
 		joystick1.baseY = e.changedTouches[0].clientY;
 		joystick1.stickX = e.changedTouches[0].clientX;
 		joystick1.stickY = e.changedTouches[0].clientY;
-		alert('joy1: ' + joystick1.baseX + ',' + joystick1.baseY);
 	}
 	if(e.changedTouches[0].clientX > w/2&&move2==-1){
 		canvas.addEventListener('touchmove', TouchMoveHandler2)
@@ -146,7 +146,6 @@ function TouchStartHandler(e){
 		joystick2.baseY = e.changedTouches[0].clientY;
 		joystick2.stickX = e.changedTouches[0].clientX;
 		joystick2.stickY = e.changedTouches[0].clientY;
-		alert('joy2: ' + joystick1.baseX + ',' + joystick1.baseY);
 	}
 }
 
@@ -552,6 +551,7 @@ function drawEye(direct, i){
 
 
 function drawjoystick1(){
+	alert('draw it');
 	ctx.lineWidth = 5;
 	ctx.beginPath();
 	ctx.arc(joystick1.baseX, joystick1.baseY, 100, 0, Math.PI*2);
