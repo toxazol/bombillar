@@ -81,13 +81,12 @@ function TouchEndHandler(e){
 }
 function TouchMoveHandler1(e){
 	e.preventDefault()
-	alert('yay');
 	var i
 	for(i=0; i<e.touches.length; i++)
 		if(e.touches[i].identifier==move1)
 			break
-	joystick1.stickX = e.touches[i].pageX;
-	joystick1.stickY = e.touches[i].pageY;
+	joystick1.stickX = e.touches[i].clientX;
+	joystick1.stickY = e.touches[i].clientY;
 	var x = joystick1.deltaX = joystick1.stickX - joystick1.baseX;
 	var y = joystick1.deltaY = joystick1.stickY - joystick1.baseY;
 	if(Math.sqrt(x*x+y*y)>maxR){
@@ -105,8 +104,8 @@ function TouchMoveHandler2(e){
 	for(i=0; i<e.touches.length; i++)
 		if(e.touches[i].identifier==move2)
 			break
-	joystick2.stickX = e.touches[i].pageX;
-	joystick2.stickY = e.touches[i].pageY;
+	joystick2.stickX = e.touches[i].clientX;
+	joystick2.stickY = e.touches[i].clientY;
 	var x = joystick2.deltaX = joystick2.stickX - joystick2.baseX;
 	var y = joystick2.deltaY = joystick2.stickY - joystick2.baseY;
 	if(Math.sqrt(x*x+y*y)>maxR){
@@ -119,33 +118,33 @@ function TouchMoveHandler2(e){
 }
 function TouchStartHandler(e){
 	e.preventDefault()
-    if(e.changedTouches[0].pageX < w/2&&move1!=-1&&cat1()>3){
+    if(e.changedTouches[0].clientX < w/2&&move1!=-1&&cat1()>3){
 		var x = tail(1)
         balls[x].on=false
         forget(x)
 	}
-	if(e.changedTouches[0].pageX > w/2&&move2!=-1&&cat2()>3){
+	if(e.changedTouches[0].clientX > w/2&&move2!=-1&&cat2()>3){
 		var x = tail(2)
         balls[x].on=false
         forget(x)
 	}
-	if(e.changedTouches[0].pageX < w/2&&move1==-1){
+	if(e.changedTouches[0].clientX < w/2&&move1==-1){
 		canvas.addEventListener('touchmove', TouchMoveHandler1)
 		move1 = e.changedTouches[0].identifier
 		joystick1.on = true;
-		joystick1.baseX = e.changedTouches[0].pageX;
-		joystick1.baseY = e.changedTouches[0].pageY;
-		joystick1.stickX = e.changedTouches[0].pageX;
-		joystick1.stickY = e.changedTouches[0].pageY;
+		joystick1.baseX = e.changedTouches[0].clientX;
+		joystick1.baseY = e.changedTouches[0].clientY;
+		joystick1.stickX = e.changedTouches[0].clientX;
+		joystick1.stickY = e.changedTouches[0].clientY;
 	}
-	if(e.changedTouches[0].pageX > w/2&&move2==-1){
+	if(e.changedTouches[0].clientX > w/2&&move2==-1){
 		canvas.addEventListener('touchmove', TouchMoveHandler2)
 		move2 = e.changedTouches[0].identifier
 		joystick2.on = true;
-		joystick2.baseX = e.changedTouches[0].pageX;
-		joystick2.baseY = e.changedTouches[0].pageY;
-		joystick2.stickX = e.changedTouches[0].pageX;
-		joystick2.stickY = e.changedTouches[0].pageY;
+		joystick2.baseX = e.changedTouches[0].clientX;
+		joystick2.baseY = e.changedTouches[0].clientY;
+		joystick2.stickX = e.changedTouches[0].clientX;
+		joystick2.stickY = e.changedTouches[0].clientY;
 	}
 }
 
