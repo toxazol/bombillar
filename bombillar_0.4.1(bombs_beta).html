@@ -81,6 +81,7 @@ function TouchEndHandler(e){
 }
 function TouchMoveHandler1(e){
 	e.preventDefault()
+	alert('yay');
 	var i
 	for(i=0; i<e.touches.length; i++)
 		if(e.touches[i].identifier==move1)
