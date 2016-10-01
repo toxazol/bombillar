@@ -15,9 +15,7 @@
 <canvas id="myCanvas" width="800" height="800"></canvas>
 
 <script>
-// screen.orientation.lock('landscape');
-//var supply = false;
-//setInterval(function(){supply=true;},40000);
+screen.orientation.lock('landscape');
 setTimeout(function(){
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
@@ -36,9 +34,7 @@ var applyDeadzone = function(number, threshold){
 
    return percentage * (number > 0 ? 1 : -1);
 }
-  /******************************/
- /******************************/
-/****touch controls block******/
+/*joystick1 block*****/
 var joystick1 = {
 	on: false,
 	baseX: 0,
@@ -59,7 +55,7 @@ var joystick2 = {
 }
 var move1=-1
 var move2=-1
-var maxR = 150
+var maxR = 250
 canvas.addEventListener('touchstart', TouchStartHandler)
 canvas.addEventListener('touchend', TouchEndHandler)
 function TouchEndHandler(e){
@@ -71,7 +67,7 @@ function TouchEndHandler(e){
 		joystick1.deltaX = 0;
 		joystick1.deltaY = 0;
 	}
-	else if(move2==e.changedTouches[0].identifier){
+	else{
 		move2=-1
 		canvas.removeEventListener('touchmove', TouchMoveHandler2)
 		joystick2.on = false;
@@ -118,16 +114,6 @@ function TouchMoveHandler2(e){
 }
 function TouchStartHandler(e){
 	e.preventDefault()
-    if(e.changedTouches[0].pageX < w/2&&move1!=-1&&cat1()>3){
-		var x = tail(1)
-        balls[x].on=false
-        forget(x)
-	}
-	if(e.changedTouches[0].pageX > w/2&&move2!=-1&&cat2()>3){
-		var x = tail(2)
-        balls[x].on=false
-        forget(x)
-	}
 	if(e.changedTouches[0].pageX < w/2&&move1==-1){
 		canvas.addEventListener('touchmove', TouchMoveHandler1)
 		move1 = e.changedTouches[0].identifier
@@ -137,7 +123,7 @@ function TouchStartHandler(e){
 		joystick1.stickX = e.changedTouches[0].pageX;
 		joystick1.stickY = e.changedTouches[0].pageY;
 	}
-	if(e.changedTouches[0].pageX > w/2&&move2==-1){
+	else if(move2==-1){
 		canvas.addEventListener('touchmove', TouchMoveHandler2)
 		move2 = e.changedTouches[0].identifier
 		joystick2.on = true;
@@ -148,9 +134,7 @@ function TouchStartHandler(e){
 	}
 }
 
-  /*touch controls block ends****/
- /******************************/
-/******************************/
+/*joystick1 block ends*****/
 var Key = {
 	_pressed: {},
 	UP: 38,
@@ -195,172 +179,130 @@ function add(a, b){
 	return new vector(a.x+b.x, a.y+b.y);
 }
 function mul (a, v){
-	return new vector(a*v.x, a*v.y)
+	return new vector(a*v.x, a*v.y);
 }
 function sub(a, b){
-	return new vector(a.x-b.x, a.y-b.y)
+	return new vector(a.x-b.x, a.y-b.y);
 }
 function magnitude(a){
-	return Math.ceil(Math.sqrt(a.x*a.x + a.y*a.y))
+	return Math.ceil(Math.sqrt(a.x*a.x + a.y*a.y));
 }
-function ball(on, x, y, r, prev,bro,color){//particles
-	this.on = on
-	this.x = x
-	this.y = y
-	this.r = r
-	this.prev = prev
-    this.bro = bro
-    this.color = color
+function ball(x, y, r, prev){//particles
+	this.x = x;
+	this.y = y;
+	this.r = r;
+	this.prev = prev;
 }
 
 function angle(a, b){
-	return (a.x*b.x+a.y*b.y)/(magnitude(a)*magnitude(b))
+	return (a.x*b.x+a.y*b.y)/(magnitude(a)*magnitude(b));
 }
 function vdist(a,b){
-	return magnitude(sub(a,b))
+	return magnitude(sub(a,b));
 }
 function intersect(a, b){
-	return (Math.abs(a.x-b.x) <= a.r+b.r && Math.abs(a.y-b.y) <= a.r+b.r)
-}
-function forget(i){
-	   var x = balls[i].bro.x
-	   var y = balls[i].bro.y
-	   if(x)balls[x].bro.y=0
-	   if(y)balls[y].bro.x=0
-	      
-    balls[i].bro.x = 0
-    balls[i].bro.y = 0
-    
-    return
+	
+	//if(((a.x+a.r>=b.x-b.r&&a.x+a.r<=b.x+b.r)||(a.x-a.r<=b.x+b.r)&&(a.x-a.r>=b.x-b.r))&&((a.y+a.r>=b.y-b.r&&a.y+a.r<=b.y+b.r)||(a.y-a.r<=b.y+b.r)&&(a.y-a.r>=b.y-b.r)))
+	return (Math.abs(a.x-b.x) <= a.r+b.r && Math.abs(a.y-b.y) <= a.r+b.r);
+	
 }
 /****************************************/
 /***initialization block***/
-var trig1=true
-var trig2=true
-var explodeAnim = false //explosion animation trigger
-var period = 45
-
-var head1 = 1; var head2 = 8
-var tail1 = 7; var tail2 = 14
-
-var dead1 = false
-var dead2 = false
-
-var balls = []
-balls[head1] = new ball(true,w/2, 200, 20, new vector(w/2, 200),new vector(0,head1+1), 1)
+var balls = {
+	amount: 14,
+	split: 7
+}
+balls[1] = new ball(w/2, 200, 20, new vector(w/2, 200));
 					
-for(var i=head1+1; i<tail1; i++){
-	balls[i] = new ball(true,balls[head1].x, balls[i-1].y+2*balls[i-1].r-1, balls[i-1].r-1, new vector(balls[head1].x, balls[i-1].y+2*balls[i-1].r-1),new vector(i-1,i+1), 1)
+for(var i=2; i<=7; i++){
+	balls[i] = new ball(balls[1].x, balls[i-1].y+2*balls[i-1].r-1, balls[i-1].r-1, new vector(balls[1].x, balls[i-1].y+2*balls[i-1].r-1));
 }
-balls[tail1] = new ball(true,balls[head1].x, balls[tail1-1].y+2*balls[tail1-1].r-1, balls[tail1-1].r-1, new vector(balls[head1].x, balls[tail1-1].y+2*balls[tail1-1].r-1),new vector(tail1-1,0), 1)
+balls[balls.split+1] = new ball(w/2+80, 200, 20, new vector(w/2+80, 200));
+for(var i=9; i<=14; i++){
+	balls[i] = new ball(balls[balls.split+1].x, balls[i-1].y+2*balls[i-1].r-1, balls[i-1].r-1, new vector(balls[balls.split+1].x, balls[i-1].y+2*balls[i-1].r-1));
+} 
 
-balls[head2] = new ball(true,w/2+80, 200, 20, new vector(w/2+80, 200),new vector(0,head2+1), 2)
-for(var i=head2+1; i<tail2; i++){
-	balls[i] = new ball(true,balls[head2].x, balls[i-1].y+2*balls[i-1].r-1, balls[i-1].r-1, new vector(balls[head2].x, balls[i-1].y+2*balls[i-1].r-1),new vector(i-1,i+1), 2)
-}
-balls[tail2] = new ball(true,balls[head2].x, balls[tail2-1].y+2*balls[tail2-1].r-1, balls[tail2-1].r-1, new vector(balls[head2].x, balls[tail2-1].y+2*balls[tail2-1].r-1),new vector(tail2-1,0), 2);
-
-	function countBlue(){
-	var c = 0
-	for(var i=1; i<balls.length; i++)
-		if(balls[i].color==1)c++
-	return c
-}
-function countRed(){
-	var c = 0
-	for(var i=1; i<balls.length; i++)
-		if(balls[i].color==2)c++
-	return c
-}
-function cat1() {
-	var c = 1
-	var i = head1
-	while(i=balls[i].bro.y)c++
-	return c
-}//first caterpillar length
-function cat2() {
-	var c = 1
-	var i = head2
-	while(i=balls[i].bro.y)c++
-	return c
-}
-function tail(j){
-	if(j==1)var i = head1
-	else var i = head2
-	while(balls[i].bro.y){i=balls[i].bro.y}
-	return i
-}
-var blink1
-var blink2
-function eat(i){
-	balls[i].on = true
-	forget(i)
-	var col = balls[i].color
-	var t = tail(col)
-	if(col==1)clearInterval(blink1)
-	else clearInterval(blink2)
-	balls[t].bro.y = i
-	balls[i].bro.x = t
-	balls[i].r = balls[t].r-1
-	
-	var direct = normalize(2*balls[t].r-1, sub(balls[t],balls[balls[t].bro.x]))
-	balls[i].x = balls[t].x + direct.x
-	balls[i].y = balls[t].y + direct.y
-	balls[i].prev.x = balls[i].x
-	balls[i].prev.y = balls[i].y
-}
-function start() {
-    clearInterval(blink1)
-    clearInterval(blink2)
-	trig1=true
-	trig2=true
-	explodeAnim = false //explosion animation trigger
-	period = 45
-
-	head1 = 1;  head2 = 8
-	tail1 = 7;  tail2 = 14
-
-	dead1 = false
-	dead2 = false
-
-	balls = []
-	balls[head1] = new ball(true,w/2, 200, 20, new vector(w/2, 200),new vector(0,head1+1), 1)
-						
-	for( i=head1+1; i<tail1; i++){
-		balls[i] = new ball(true,balls[head1].x, balls[i-1].y+2*balls[i-1].r-1, balls[i-1].r-1, new vector(balls[head1].x, balls[i-1].y+2*balls[i-1].r-1),new vector(i-1,i+1), 1)
-	}
-	balls[tail1] = new ball(true,balls[head1].x, balls[tail1-1].y+2*balls[tail1-1].r-1, balls[tail1-1].r-1, new vector(balls[head1].x, balls[tail1-1].y+2*balls[tail1-1].r-1),new vector(tail1-1,0), 1)
-
-	balls[head2] = new ball(true,w/2+80, 200, 20, new vector(w/2+80, 200),new vector(0,head2+1), 2)
-	for( i=head2+1; i<tail2; i++){
-		balls[i] = new ball(true,balls[head2].x, balls[i-1].y+2*balls[i-1].r-1, balls[i-1].r-1, new vector(balls[head2].x, balls[i-1].y+2*balls[i-1].r-1),new vector(i-1,i+1), 2)
-	}
-	balls[tail2] = new ball(true,balls[head2].x, balls[tail2-1].y+2*balls[tail2-1].r-1, balls[tail2-1].r-1, new vector(balls[head2].x, balls[tail2-1].y+2*balls[tail2-1].r-1),new vector(tail2-1,0), 2);
+var apples = {
+	eat: function(i){
+		var x = Math.random()*(w/2) + w/4;
+		var y = Math.random()*(h/2) + h/4;
+		apples[i] = new ball (x, y, apples.r, new vector(x, y));
+		for(var j = 1; j <= balls.amount; j++)
+			if(vdist(balls[j], apples[i]) < balls[i].r + apples[i].r) this.eat(i);
+	},
+	r: 20,
+	amount: 3,
+} 
+for(var i = 1; i <= apples.amount; i++){
+	apples.eat(i);
 }
 /***initialization block ends***/
-/****************************************/
-/****************PHYSICS BLOCK*********************************/
 
+/****************PHYSICS BLOCK*********************************/
+var rax = 10
 function integrate(){
 	/*verlet integration*/	
-	for(var i = 1; i<balls.length; i++){
-		var velX = (balls[i].x - balls[i].prev.x)*0.97 // friction
-		var velY = (balls[i].y - balls[i].prev.y)*0.97
-		balls[i].prev.x = balls[i].x
-		balls[i].prev.y = balls[i].y
-		
-        balls[i].x += velX
-		balls[i].y += velY
-		//Update()
+	for(var i = 1; i<=balls.amount; i++){
+		var velX = (balls[i].x - balls[i].prev.x)*0.97; // friction
+		var velY = (balls[i].y - balls[i].prev.y)*0.97;
+		balls[i].prev.x = balls[i].x;
+		balls[i].prev.y = balls[i].y;
+		for(var j = 0; j<rax; j++){
+			balls[i].x += velX/rax;
+			balls[i].y += velY/rax;
+			Update()
+		}
+	}
+	for(var i = 1; i<=apples.amount; i++){
+		var velX = (apples[i].x - apples[i].prev.x)*0.99; // friction
+		var velY = (apples[i].y - apples[i].prev.y)*0.99;
+		var nextX = apples[i].x + velX;
+		var nextY = apples[i].y + velY;
+		apples[i].prev.x = apples[i].x;
+		apples[i].prev.y = apples[i].y;
+		apples[i].x = nextX;
+		apples[i].y = nextY;
 	}
 }
 //-try stable dt! -How?
-function Update(){ 
+function Update(){ //trying Verlet integration scheme
+	
 	/*constraints resolving*/
 	for(var k=0; k<3; k++){ //relaxation mode x3
+		for(var j = 1; j <= apples.amount; j++){	// bounce apples
+			if(apples[j].x > w - apples[j].r){ //apple constraints
+				if(apples[j].y > h/3+apples[j].r && apples[j].y < 2*h/3-apples[j].r){
+					apples.eat(j);
+					blue++;
+				}
+				else{
+					apples[j].prev.x = apples[j].x;
+					apples[j].x = (w - apples[j].r);
+				}
+			}
+			if(apples[j].y > h - apples[j].r){
+				 apples[j].prev.y = apples[j].y;
+				apples[j].y = (h - apples[j].r);
+		}
+			if(apples[j].x < apples[j].r){
+				if(apples[j].y > h/3+apples[j].r && apples[j].y < 2*h/3-apples[j].r){
+					apples.eat(j);
+					red++;
+				}
+				else{
+					apples[j].prev.x = apples[j].x;
+					apples[j].x = apples[j].r;
+				}
+			}
+			if(apples[j].y < apples[j].r){
+				 apples[j].prev.y = apples[j].y;
+				apples[j].y = apples[j].r;
+			}
+		}
+		/**************************************************************/
 		/**add symmetry & impulse!!!!!*****************************/
-		for(var i=1; i<balls.length; i++){ 
-			if(balls[i].x > w - balls[i].r){
+		for(var i=1; i<=balls.amount; i++){ 
+			if(balls[i].x > w - balls[i].r){//some constraints for some reason are in this block
 				balls[i].prev.x = balls[i].x; 
 				balls[i].x = w - balls[i].r;
 				
@@ -379,167 +321,166 @@ function Update(){
 				balls[i].y = balls[i].r;
 			}
 			
-			//balls & balls collisions
-            for(var j = i+1; j<balls.length; j++){
-				if(intersect(balls[i], balls[j])){//AABB optimization
-					var L = sub(balls[i], balls[j]);
+			for(var j = 1; j <= apples.amount; j++){	
+				//balls & apples
+				if(intersect(balls[i], apples[j])){//AABB optimization
+					var L = sub(balls[i], apples[j]);
 					var l = magnitude(L);
-					var dl = (balls[i].r + balls[j].r - l)/l;
+					var dl = (balls[i].r + apples[j].r - l)/l;
 					if(dl > 0){
-						/*********interaction block*************/
-						/********explode block********************/
-						if((balls[i].r + balls[j].r-l)/(balls[i].r + balls[j].r)>0.1){
-							if((!balls[i].on||!balls[j].on)&&balls[i].color!=balls[j].color){
-								if(!balls[i].on){
-                                    explodeAnim = i
-                                    var a = balls[i]
-                                    var b = balls[j]
-                                    var x=j
-                                    while(x=balls[x].bro.y)balls[x].on=false
-                                    forget(j)
-                                }
-                                else{
-                                    explodeAnim = j
-                                    var a = balls[j]
-                                    var b = balls[i]
-                                    var x=i
-                                    while(x=balls[x].bro.y)balls[x].on=false
-                                    forget(i)
-                                }
-                                if(b.r>balls[head1].r-2)
-                                    if(b.color==1) dead1 = true
-                                    else dead2 = true
-                                b.color = a.color
-                                b.on = false
-                                continue
-							}
-						}
-						/********eat block********************/
-                        if((i==head1&&!dead1||j==head1&&!dead1||i==head2&&!dead2||j==head2&&!dead2)&&balls[i].on!=balls[j].on&&balls[i].color==balls[j].color){
-                            if(balls[i].on)
-                                eat(j)
-                            else eat(i)
-                            continue
-                        }
-						/************************************/
 						var translateX = L.x*dl;
 						var translateY = L.y*dl;
 						var c = Math.abs(dl);
-						if(balls[i].r > balls[j].r){
-							var m1 = Math.pow(balls[i].r/balls[j].r, 3); //masses as cubes, cause balls!
-							var m2 = 2/(m1+1); //m1*x + x = 2, where x is m2
-							
+						apples[j].x -= translateX;
+						apples[j].y -= translateY;
+					}
+				}					
+			}
+			//balls[1].prev.x < balls[1].r || balls[1].prev.y < balls[1].r
+			//balls & balls
+			for(var j = i+1; j<=balls.amount; j++){
+					if(intersect(balls[i], balls[j])){//AABB optimization
+						var L = sub(balls[i], balls[j]);
+						var l = magnitude(L);
+						var dl = (balls[i].r + balls[j].r - l)/l;
+						if(dl > 0){
+							var translateX = L.x*dl;
+							var translateY = L.y*dl;
+							var c = Math.abs(dl);
+							if(balls[i].r > balls[j].r){
+								var m1 = Math.pow(balls[i].r/balls[j].r, 3); //masses as cubes, cause balls!
+								var m2 = 2/(m1+1); //m1*x + x = 2, where x is m2
+								
 
-							balls[i].x += translateX*c*m2;
-							balls[i].y += translateY*c*m2;
-							
-							balls[j].x -= translateX*c*m2*m1;
-							balls[j].y -= translateY*c*m2*m1;
-						}
-						else{
-							var m1 = Math.pow(balls[j].r/balls[i].r, 3); //masses as cubes, cause balls!
-							var m2 = 2/(m1+1); //m1*x + x = 2, where x is m2
-							
-							balls[j].x -= translateX*c*m2;
-							balls[j].y -= translateY*c*m2;
-							
-							balls[i].x += translateX*c*m2*m1;
-							balls[i].y += translateY*c*m2*m1;
-						}
+								balls[i].x += translateX*c*m2/(rax*balls.split);
+								balls[i].y += translateY*c*m2/(rax*balls.split);
+								
+								balls[j].x -= translateX*c*m2*m1/(rax*balls.split);
+								balls[j].y -= translateY*c*m2*m1/(rax*balls.split);
+							}
+							else{
+								var m1 = Math.pow(balls[j].r/balls[i].r, 3); //masses as cubes, cause balls!
+								var m2 = 2/(m1+1); //m1*x + x = 2, where x is m2
+								
+								balls[j].x -= translateX*c*m2/(rax*balls.split);
+								balls[j].y -= translateY*c*m2/(rax*balls.split);
+								
+								balls[i].x += translateX*c*m2*m1/(rax*balls.split);
+								balls[i].y += translateY*c*m2*m1/(rax*balls.split);
+							}
+						}	
+					}
+				}
+			
+			
+		}/**/
+		//apples & apples
+		for(var j = 1; j <= apples.amount; 
+		j++)
+			for(var q = j+1; q <= apples.amount; q++){
+				if(intersect(apples[j], apples[q])){//AABB optimization
+					var L = sub(apples[q], apples[j]);
+					var l = magnitude(L);
+					var dl = (balls[q].r + apples[j].r - l)/l;
+					if(dl > 0){
+						var translateX = L.x*dl;
+						var translateY = L.y*dl;
+						var c = Math.abs(dl);
+						apples[q].x += translateX*c;
+						apples[q].y += translateY*c;
+						
+						apples[j].x -= translateX*c;
+						apples[j].y -= translateY*c;
+						
 					}	
-				}
+				}	
 			}
-		}
-        //parovozik
-		for(var i = head1;balls[i].bro.y;){
-            var j = balls[i].bro.y
-			if(j&&balls[i].on&&balls[j].on){
-				var L = sub(balls[i], balls[j]); // a vector
-				var l = magnitude(L);
-				var dl = (balls[i].r+balls[j].r - l)/l;
-				
-				if(1){
-					var translateX = L.x*dl;
-					var translateY = L.y*dl;
-					var c = Math.abs(dl); //kind of spring effect to avoid trembling
-					var m1 = Math.pow(balls[i].r/balls[j].r, 3); //masses as cubes, cause balls!
-					var m2 = 2/(m1+1); //m1*x + x = 2, where x is m2
-					balls[i].x += translateX*c*m2; //inertia resolving?
-					balls[i].y += translateY*c*m2;
+	for(var i = 1; i <=balls.split-1; i++){
+			var L = sub(balls[i], balls[i+1]); // a vector
+			var l = magnitude(L);
+			var dl = (balls[i].r+balls[i+1].r - l)/l;
+			
+			if(1){
+				var translateX = L.x*dl;
+				var translateY = L.y*dl;
+				var c = Math.abs(dl); //kind of spring effect to avoid trembling
+				var m1 = Math.pow(balls[i].r/balls[i+1].r, 3); //masses as cubes, cause balls!
+				var m2 = 2/(m1+1); //m1*x + x = 2, where x is m2
+				balls[i].x += translateX*c*m2/(rax*balls.split); //inertia resolving?
+				balls[i].y += translateY*c*m2/(rax*balls.split);
 
-					balls[j].x -= translateX*c*m1*m2;
-					balls[j].y -= translateY*c*m1*m2;
-				}
-		  i=j
+				balls[i+1].x -= translateX*c*m1*m2/(rax*balls.split);
+				balls[i+1].y -= translateY*c*m1*m2/(rax*balls.split);
 			}
-		}
-		 for(var i = head2;balls[i].bro.y;){
-            var j = balls[i].bro.y
-			if(j&&balls[i].on&&balls[j].on){
-				var L = sub(balls[i], balls[j]); // a vector
-				var l = magnitude(L);
-				var dl = (balls[i].r+balls[j].r - l)/l;
-				
-				if(1){
-					var translateX = L.x*dl;
-					var translateY = L.y*dl;
-					var c = Math.abs(dl); //kind of spring effect to avoid trembling
-					var m1 = Math.pow(balls[i].r/balls[j].r, 3); //masses as cubes, cause balls!
-					var m2 = 2/(m1+1); //m1*x + x = 2, where x is m2
-					balls[i].x += translateX*c*m2; //inertia resolving?
-					balls[i].y += translateY*c*m2;
+	}
+	for(var i = balls.split+1; i <=balls.amount-1; i++){
+			var L = sub(balls[i], balls[i+1]); // a vector
+			var l = magnitude(L);
+			var dl = (balls[i].r+balls[i+1].r - l)/l;
+			
+			if(1){
+				var translateX = L.x*dl;
+				var translateY = L.y*dl;
+				var c = Math.abs(dl); //kind of spring effect to avoid trembling
+				var m1 = Math.pow(balls[i].r/balls[i+1].r, 3); //masses as cubes, cause balls!
+				var m2 = 2/(m1+1); //m1*x + x = 2, where x is m2
+				balls[i].x += translateX*c*m2/(rax*balls.split); //inertia resolving?
+				balls[i].y += translateY*c*m2/(rax*balls.split);
 
-					balls[j].x -= translateX*c*m1*m2;
-					balls[j].y -= translateY*c*m1*m2;
-				}
-		  i=j
+				balls[i+1].x -= translateX*c*m1*m2/(rax*balls.split);
+				balls[i+1].y -= translateY*c*m1*m2/(rax*balls.split);
 			}
-		}
-	}/************************/
+	}
+		/*collision block  (no impulse yet) ****/
+		
+		/*for(var t=1; t<=apples.amount; t++){ //eating apples
+			if(vdist(apples[t], balls[1]) < apples.r + balls[1].r){
+				apples.eat(t);
+				var last = balls[balls.amount];
+				var prelast = balls[balls.amount-1];
+				var direct = normalize(last.r+last.r-1, sub(last, prelast));
+				var x = last.x+direct.x;
+				var y = last.y+direct.y;
+				balls[++balls.amount] = new ball(x, y, last.r-1, new vector(x,y));
+			}
+		}*/
+		
+	/************************/
+
+	}
 }
 /****************PHYSICS BLOCK ENDS***************************/
 
 /**game loop + drawing functions**/
-
 function drawball(i){
-	ctx.globalCompositeOperation = 'screen';
-	/* if(growAnim1==1&&i<=cat2()&&(period-growCount1)/(period/cat2())<i)
-		ctx.globalCompositeOperation = 'xor';
-	if(i>tail1){
-		if(growAnim2==1&&i<=tail1+cat2()&&(period-growCount2)/(period/cat2())+tail1<i)
-			ctx.globalCompositeOperation = 'xor';
-	} */
 	ctx.beginPath();
 	ctx.arc(balls[i].x, balls[i].y, balls[i].r, 0, Math.PI*2);
-	ctx.fillStyle ="#0075dd";
-
-	if(balls[i].color==2){
-		ctx.fillStyle ="#dd7500";
-	}
+	ctx.fillStyle ="#0095DD";
+	if(i>balls.split)ctx.fillStyle ="#ee5500";
 	ctx.fill();
 	ctx.closePath();
-	ctx.globalCompositeOperation = 'source-over';
 }
 function drawLight(i){
-	var n = 20
-	ctx.globalCompositeOperation = 'screen';
-	if(explodeAnim==i){
-		n=200
-		grd=ctx.createRadialGradient(balls[i].x,balls[i].y,balls[i].r+explodeCount*8,balls[i].x,balls[i].y,balls[i].r);
-	}
-	else
-		var grd=ctx.createRadialGradient(balls[i].x,balls[i].y,balls[i].r+n,balls[i].x,balls[i].y,balls[i].r);
-	if(balls[i].color==1)grd.addColorStop(1,"blue");
+	var grd=ctx.createRadialGradient(balls[i].x,balls[i].y,balls[i].r+20,balls[i].x,balls[i].y,balls[i].r);
+	if(i<=balls.split)grd.addColorStop(1,"blue");
 	else grd.addColorStop(1,"red");
 	grd.addColorStop(0,"transparent");
 	ctx.beginPath();
-	ctx.arc(balls[i].x, balls[i].y, balls[i].r+n, 0, Math.PI*2);
+	ctx.arc(balls[i].x, balls[i].y, balls[i].r+20, 0, Math.PI*2);
 	ctx.fillStyle =grd;//"#0095DD";
 	ctx.fill();
 	ctx.closePath();
-	ctx.globalCompositeOperation = 'source-over';
 }
-
+function drawLight2(i){
+	var grd=ctx.createRadialGradient(apples[i].x,apples[i].y,apples.r+20,apples[i].x,apples[i].y,apples.r);
+	grd.addColorStop(1,"green");
+	grd.addColorStop(0,"transparent");
+	ctx.beginPath();
+	ctx.arc(apples[i].x, apples[i].y, apples.r+20, 0, Math.PI*2);
+	ctx.fillStyle =grd;//"#0095DD";
+	ctx.fill();
+	ctx.closePath();
+}
 function drawEye(direct, i){
 	ctx.beginPath();
 	ctx.arc(balls[i].x + direct.x*16, balls[i].y + direct.y*16, 3, 0, Math.PI*2);
@@ -548,7 +489,35 @@ function drawEye(direct, i){
 	ctx.closePath();
 }
 
-
+function drawApple(i){
+	ctx.beginPath();
+	ctx.arc(apples[i].x, apples[i].y, apples.r, 0, Math.PI*2);
+	ctx.fillStyle = "#2ecc71";
+	ctx.fill();
+	ctx.closePath();
+}
+function drawGoal(){
+	ctx.beginPath();
+	ctx.moveTo(w,h/3);
+	ctx.bezierCurveTo(w-40,h/3+50, w-40,2*h/3-50, w, 2*h/3);
+	ctx.fillStyle = "#ee5500";
+	ctx.fill();
+	ctx.closePath();
+	
+	ctx.beginPath();
+	ctx.moveTo(0,h/3);
+	ctx.bezierCurveTo(40,h/3+50, 40,2*h/3-50, 0, 2*h/3);
+	ctx.fillStyle = "#0095DD";
+	ctx.fill();
+	ctx.closePath();
+}
+function drawLog(){
+	ctx.font = "30px Arial";
+	ctx.fillStyle = "#0095DD";
+	ctx.fillText("Blue: " + blue + "",10,50);
+	ctx.fillStyle = "#ee5500";
+	ctx.fillText("Red: " + red + "",w-100,50);
+}
 function drawjoystick1(){
 	ctx.lineWidth = 5;
 	ctx.beginPath();
@@ -589,82 +558,31 @@ function drawjoystick2(){
 	ctx.stroke();
 	ctx.closePath();
 }
-function drawLog(){
-	ctx.font = "30px Arial";
-	ctx.fillStyle = "#0095DD";
-	ctx.fillText("Blue: " + blue + "",10,50);
-	ctx.fillStyle = "#ee5500";
-	ctx.fillText("Red: " + red + "",w-100,50);
-}
-var long1 = 0
-var long2 = 0 //gamepads buttons pressed dt
-var growCount1 = 0
-var growCount2 = 0
-var explodeCount = 0
+
 function draw() {
 		w = canvas.width = window.innerWidth;
 		h = canvas.height = window.innerHeight;
 		ctx.clearRect(0, 0, w, h);
 		Update();
 		integrate();
-		/***animation triggering***/
-		if(explodeAnim&&explodeCount==0)
-			explodeCount=Math.round(period)
-		if(explodeCount>0)
-			explodeCount--
-		if(explodeCount==1){explodeAnim=false;explodeCount=0;}
 		
-		/***************************/
 		if(joystick1.on)drawjoystick1();
 		if(joystick2.on)drawjoystick2();
-		
-		for(var i = 1; i <balls.length; i++)
+		for(var i = 1; i <= apples.amount; i++)
+			drawLight2(i);
+		for(var i = 1; i <= balls.amount; i++)
 			drawLight(i);
-		for(var i = 1; i <balls.length; i++)
+		for(var i = 1; i <= balls.amount; i++)
 			drawball(i);
-        
-        drawLog()
-		
-		
-		if(!dead1){
-			var direct1 = normalize(1, sub(new vector(balls[head1].x, balls[head1].y),new vector(balls[head1+1].x, balls[head1+1].y)))
-			drawEye(direct1, head1);
+		var direct1 = normalize(1, sub(new vector(balls[1].x, balls[1].y),new vector(balls[2].x, balls[2].y)))
+		var direct8 = normalize(1, sub(new vector(balls[balls.split+1].x, balls[balls.split+1].y),new vector(balls[balls.split+2].x, balls[balls.split+2].y)))
+		drawEye(direct1, 1);drawEye(direct8, 8);
+		for(var i = 1; i <= apples.amount; i++){
+			drawApple(i);
 		}
-		if(!dead2){
-			var direct8 = normalize(1, sub(new vector(balls[head2].x, balls[head2].y),new vector(balls[head2+1].x, balls[head2+1].y)))
-			drawEye(direct8, head2);
-		}
+		drawGoal();
 		
-		if(countBlue()<=4&&!dead1){ //second chance
-			var x = Math.random()*w
-			var y = Math.random()*h
-            var support = new ball(false, x, y, 16, new vector(x, y), new vector(0,0), 1)
-            for(var i=1; i<balls.length; i++)
-                if(intersect(support,balls[i])){
-                    support = new ball(false, x, y, 16, new vector(x, y), new vector(0,0), 1)
-                    i=1
-                }
-                    
-			balls.push(support)
-			blink1 = setInterval(function(){explodeAnim = balls.length-1}, 1000)
-		}
-		if(countRed()<=4&&!dead2){
-			var x = Math.random()*w
-			var y = Math.random()*h
-			var support = new ball(false, x, y, 16, new vector(x, y), new vector(0,0), 2)
-            for(var i=1; i<balls.length; i++)
-                if(intersect(support,balls[i])){
-                    support = new ball(false, x, y, 16, new vector(x, y), new vector(0,0), 1)
-                    i=1
-                }
-                    
-			balls.push(support)
-			blink2 = setInterval(function(){explodeAnim = balls.length-1}, 1000)
-		}
-		
-        
-        
-        /* if(Key.isDown(Key.UP)){balls[1].x += direct1.x*1; balls[1].y += direct1.y*1;}
+		if(Key.isDown(Key.UP)){balls[1].x += direct1.x*1; balls[1].y += direct1.y*1;}
 		if(Key.isDown(Key.DOWN)){balls[1].x -= direct1.x*1; balls[1].y -= direct1.y*1;}
 		//rotation: x' = xcosa + ysina; y' = ycosa - xsina
 		var ang = (Math.PI/350);
@@ -678,72 +596,44 @@ function draw() {
 			balls[1].x = x*Math.cos(-ang) + y*Math.sin(-ang) + balls[2].x;
 			balls[1].y = y*Math.cos(-ang) - x*Math.sin(-ang) + balls[2].y;
 		}
-		if(Key.isDown(Key.W)){balls[head2].x += direct8.x; balls[head2].y += direct8.y;}
-		if(Key.isDown(Key.S)){balls[head2].x -= direct8.x; balls[head2].y -= direct8.y;}
+		if(Key.isDown(Key.W)){balls[balls.split+1].x += direct8.x; balls[balls.split+1].y += direct8.y;}
+		if(Key.isDown(Key.S)){balls[balls.split+1].x -= direct8.x; balls[balls.split+1].y -= direct8.y;}
 		
 
 		if(Key.isDown(Key.A)){
-			x = balls[head2].x - balls[tail1+2].x; y = balls[head2].y - balls[tail1+2].y;//AROUND balls[9]!!!
-			balls[head2].x = x*Math.cos(ang) + y*Math.sin(ang) + balls[tail1+2].x;
-			balls[head2].y = y*Math.cos(ang) - x*Math.sin(ang) + balls[tail1+2].y;
+			x = balls[balls.split+1].x - balls[balls.split+2].x; y = balls[balls.split+1].y - balls[balls.split+2].y;//AROUND balls[9]!!!
+			balls[balls.split+1].x = x*Math.cos(ang) + y*Math.sin(ang) + balls[balls.split+2].x;
+			balls[balls.split+1].y = y*Math.cos(ang) - x*Math.sin(ang) + balls[balls.split+2].y;
 		}
 		if(Key.isDown(Key.D)){
-			x = balls[head2].x - balls[tail1+2].x; y = balls[head2].y - balls[tail1+2].y;
-			balls[head2].x = x*Math.cos(-ang) + y*Math.sin(-ang) + balls[tail1+2].x;
-			balls[head2].y = y*Math.cos(-ang) - x*Math.sin(-ang) + balls[tail1+2].y;
-		} */
-		if(!dead1){
-			balls[head1].x += 0.015*joystick1.deltaX;
-			balls[head1].y += 0.015*joystick1.deltaY;
+			x = balls[balls.split+1].x - balls[balls.split+2].x; y = balls[balls.split+1].y - balls[balls.split+2].y;
+			balls[balls.split+1].x = x*Math.cos(-ang) + y*Math.sin(-ang) + balls[balls.split+2].x;
+			balls[balls.split+1].y = y*Math.cos(-ang) - x*Math.sin(-ang) + balls[balls.split+2].y;
 		}
+		
+		balls[1].x += 0.015*joystick1.deltaX;
+		balls[1].y += 0.015*joystick1.deltaY;
 	
-		if(!dead2){
-			balls[head2].x += 0.015*joystick2.deltaX;
-			balls[head2].y += 0.015*joystick2.deltaY;
-		}
+	
+		balls[balls.split+1].x += 0.015*joystick2.deltaX;
+		balls[balls.split+1].y += 0.015*joystick2.deltaY;
+		
 		
 		var gamepad0 = navigator.getGamepads()[0];
 		var gamepad1 = navigator.getGamepads()[1];
 		
-		if(gamepad0&&!dead1){
-			balls[head1].x += 1.2*applyDeadzone(gamepad0.axes[0],0.25);
-			balls[head1].y += 1.2*applyDeadzone(gamepad0.axes[1],0.25);
-			//balls[head2].x += 1.8*applyDeadzone(gamepad0.axes[2],0.25);
-			//balls[head2].y += 1.8*applyDeadzone(gamepad0.axes[5],0.25);
-			if(gamepad0.buttons[1].pressed){
-				long1++
-				if(long1==1&&cat1()>3){
-                    var x = tail(1)
-					balls[x].on=false
-                    forget(x)
-                }
-			}
-			else long1 = 0
+		if(gamepad0){
+			balls[1].x += 1.8*applyDeadzone(gamepad0.axes[0],0.25);
+			balls[1].y += 1.8*applyDeadzone(gamepad0.axes[1],0.25);
 		}
-		if(gamepad1&&!dead2){
-			balls[head2].x += 1.2*applyDeadzone(gamepad1.axes[0],0.25);
-			balls[head2].y += 1.2*applyDeadzone(gamepad1.axes[1],0.25);
-			if(gamepad1.buttons[1].pressed){
-				long2++
-				if(long2==1&&cat2()>3){
-					var x = tail(2)
-					balls[x].on=false
-                    forget(x)
-                }
-			}
-			else long2 = 0
+		if(gamepad1){
+			balls[balls.split+1].x += 1.8*applyDeadzone(gamepad1.axes[0],0.25);
+			balls[balls.split+1].y += 1.8*applyDeadzone(gamepad1.axes[1],0.25);
 		}
 		
-		if(dead1&&trig1){
-			red++
-			setTimeout(start,3000)
-			trig1=false
-		}
-		if(dead2&&trig2){
-			blue++
-			setTimeout(start,3000)
-			trig2=false
-		}
+		
+		
+		drawLog();
 		requestAnimationFrame(draw);
 	}
 /**game loop ends**/
