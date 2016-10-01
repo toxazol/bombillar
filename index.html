@@ -136,6 +136,7 @@ function TouchStartHandler(e){
 		joystick1.baseY = e.changedTouches[0].clientY;
 		joystick1.stickX = e.changedTouches[0].clientX;
 		joystick1.stickY = e.changedTouches[0].clientY;
+		alert('joy1: ' + joystick1.baseX + ',' + joystick1.baseY);
 	}
 	if(e.changedTouches[0].clientX > w/2&&move2==-1){
 		canvas.addEventListener('touchmove', TouchMoveHandler2)
@@ -145,6 +146,7 @@ function TouchStartHandler(e){
 		joystick2.baseY = e.changedTouches[0].clientY;
 		joystick2.stickX = e.changedTouches[0].clientX;
 		joystick2.stickY = e.changedTouches[0].clientY;
+		alert('joy2: ' + joystick1.baseX + ',' + joystick1.baseY);
 	}
 }
 
