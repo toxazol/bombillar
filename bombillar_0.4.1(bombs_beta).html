@@ -606,6 +606,7 @@ var growCount2 = 0
 var explodeCount = 0
 var dT,fps,last;
 function draw(dT) {
+	try{
 		if(!last)last = dT;
 		else{
 			fps = 1000/(dT-last);
@@ -757,6 +758,13 @@ function draw(dT) {
 			trig2=false
 		}
 		requestAnimationFrame(draw);
+	}
+	catch(err){
+		ctx.clearRect(0, 0, w, h);
+		ctx.font = "30px Arial";
+		ctx.fillStyle = "#ee5500";
+		ctx.fillText('err: '+err);
+	}
 	}
 /**game loop ends**/
 draw()
