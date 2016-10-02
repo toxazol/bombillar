@@ -715,38 +715,6 @@ function draw(dT) {
 			balls[head2].y += 0.015*joystick2.deltaY;
 		}
 		
-		var gamepad0 = navigator.getGamepads()[0];
-		var gamepad1 = navigator.getGamepads()[1];
-		
-		if(gamepad0&&!dead1){
-			balls[head1].x += 1.2*applyDeadzone(gamepad0.axes[0],0.25);
-			balls[head1].y += 1.2*applyDeadzone(gamepad0.axes[1],0.25);
-			//balls[head2].x += 1.8*applyDeadzone(gamepad0.axes[2],0.25);
-			//balls[head2].y += 1.8*applyDeadzone(gamepad0.axes[5],0.25);
-			if(gamepad0.buttons[1].pressed){
-				long1++
-				if(long1==1&&cat1()>3){
-                    var x = tail(1)
-					balls[x].on=false
-                    forget(x)
-                }
-			}
-			else long1 = 0
-		}
-		if(gamepad1&&!dead2){
-			balls[head2].x += 1.2*applyDeadzone(gamepad1.axes[0],0.25);
-			balls[head2].y += 1.2*applyDeadzone(gamepad1.axes[1],0.25);
-			if(gamepad1.buttons[1].pressed){
-				long2++
-				if(long2==1&&cat2()>3){
-					var x = tail(2)
-					balls[x].on=false
-                    forget(x)
-                }
-			}
-			else long2 = 0
-		}
-		
 		if(dead1&&trig1){
 			red++
 			setTimeout(start,3000)
