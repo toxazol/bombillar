@@ -132,7 +132,6 @@ function TouchStartHandler(e){
 		canvas.addEventListener('touchmove', TouchMoveHandler1)
 		move1 = e.changedTouches[0].identifier
 		joystick1.on = true;
-		// alert('joy1 true');
 		joystick1.baseX = e.changedTouches[0].clientX;
 		joystick1.baseY = e.changedTouches[0].clientY;
 		joystick1.stickX = e.changedTouches[0].clientX;
@@ -142,7 +141,6 @@ function TouchStartHandler(e){
 		canvas.addEventListener('touchmove', TouchMoveHandler2)
 		move2 = e.changedTouches[0].identifier
 		joystick2.on = true;
-		// alert('joy2 true');
 		joystick2.baseX = e.changedTouches[0].clientX;
 		joystick2.baseY = e.changedTouches[0].clientY;
 		joystick2.stickX = e.changedTouches[0].clientX;
@@ -552,7 +550,6 @@ function drawEye(direct, i){
 
 
 function drawjoystick1(){
-	// alert('draw it');
 	ctx.lineWidth = 5;
 	ctx.beginPath();
 	ctx.arc(joystick1.baseX, joystick1.baseY, 100, 0, Math.PI*2);
@@ -604,20 +601,10 @@ var long2 = 0 //gamepads buttons pressed dt
 var growCount1 = 0
 var growCount2 = 0
 var explodeCount = 0
-var dT,fps,last;
 function draw(dT) {
-	try{
-		if(!last)last = dT;
-		else{
-			fps = 1000/(dT-last);
-			last = dT;
-		}
 		w = canvas.width = window.innerWidth;
 		h = canvas.height = window.innerHeight;
 		ctx.clearRect(0, 0, w, h);
-		ctx.font = "30px Arial";
-		ctx.fillStyle = "#ee5500";
-		ctx.fillText('fps: '+fps,10,h-50);
 		Update();
 		integrate();
 		/***animation triggering***/
@@ -726,14 +713,6 @@ function draw(dT) {
 			trig2=false
 		}
 		requestAnimationFrame(draw);
-	}
-	catch(err){
-		alert(err);
-		/*ctx.clearRect(0, 0, w, h);
-		ctx.font = "30px Arial";
-		ctx.fillStyle = "#ee5500";
-		ctx.fillText('err: '+err);*/
-	}
 	}
 /**game loop ends**/
 draw()
