@@ -760,10 +760,11 @@ function draw(dT) {
 		requestAnimationFrame(draw);
 	}
 	catch(err){
-		ctx.clearRect(0, 0, w, h);
+		alert(err);
+		/*ctx.clearRect(0, 0, w, h);
 		ctx.font = "30px Arial";
 		ctx.fillStyle = "#ee5500";
-		ctx.fillText('err: '+err);
+		ctx.fillText('err: '+err);*/
 	}
 	}
 /**game loop ends**/
