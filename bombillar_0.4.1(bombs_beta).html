@@ -142,6 +142,7 @@ function TouchStartHandler(e){
 		canvas.addEventListener('touchmove', TouchMoveHandler2)
 		move2 = e.changedTouches[0].identifier
 		joystick2.on = true;
+		alert('joy2 true');
 		joystick2.baseX = e.changedTouches[0].clientX;
 		joystick2.baseY = e.changedTouches[0].clientY;
 		joystick2.stickX = e.changedTouches[0].clientX;
