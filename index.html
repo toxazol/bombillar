@@ -664,7 +664,7 @@ function draw(dT) {
 		
         
         
-        /* if(Key.isDown(Key.UP)){balls[1].x += direct1.x*1; balls[1].y += direct1.y*1;}
+         if(Key.isDown(Key.UP)){balls[1].x += direct1.x*1; balls[1].y += direct1.y*1;}
 		if(Key.isDown(Key.DOWN)){balls[1].x -= direct1.x*1; balls[1].y -= direct1.y*1;}
 		//rotation: x' = xcosa + ysina; y' = ycosa - xsina
 		var ang = (Math.PI/350);
@@ -691,7 +691,7 @@ function draw(dT) {
 			x = balls[head2].x - balls[tail1+2].x; y = balls[head2].y - balls[tail1+2].y;
 			balls[head2].x = x*Math.cos(-ang) + y*Math.sin(-ang) + balls[tail1+2].x;
 			balls[head2].y = y*Math.cos(-ang) - x*Math.sin(-ang) + balls[tail1+2].y;
-		} */
+		} 
 		if(!dead1){
 			balls[head1].x += 0.015*joystick1.deltaX;
 			balls[head1].y += 0.015*joystick1.deltaY;
